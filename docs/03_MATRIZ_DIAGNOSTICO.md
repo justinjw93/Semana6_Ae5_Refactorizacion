@@ -18,44 +18,86 @@ Las líneas se refieren a `src/main/java/edu/uees/refactor/service/ServicioReser
 
 ## Notas de diagnóstico (Fases E–H)
 
-### E · Clases
+### Fase E · Diagnóstico de clases
 
-- **Clase con demasiadas responsabilidades:** `procesar()` mezcla dominio (validar, calcular) con infraestructura (guardar, notificar). Ver `02_MAPA_RESPONSABILIDADES.md`.
-- **Feature Envy:** el servicio pide `getCorreo()`, `getInicio()`, `getFin()` y `getTipo()` para decidir reglas. La regla "fin posterior a inicio" pertenece a la reserva (o a su periodo); el descuento pertenece a una política de precios.
-- **Shotgun Surgery potencial:** la validación `contains("@")` sobre un `String` tendrá que repetirse en cada nuevo lugar que reciba correos.
+#### 8.1 Long Class / demasiadas responsabilidades
 
-### F · Datos
-
-| Concepto | Tipo actual | Invariante que el tipo no protege |
+| Señal | ¿Aparece? | Evidencia |
 |---|---|---|
-| Correo | `String` | Formato de correo; hoy basta con contener "@". |
-| Tipo de reserva | `String` | Conjunto cerrado (NORMAL, VIP); hoy acepta "vip", `null` o cualquier texto. |
-| Periodo | `LocalDateTime` × 2 | fin posterior a inicio; hoy se valida fuera de `Reserva`. |
-| Total | `double` | Dinero con precisión decimal y moneda. |
-| Anticipación | `int` suelto | Coherencia con `inicio`; hoy puede contradecir la fecha real. |
+| Responsabilidades de dominio e infraestructura mezcladas | Sí | `procesar()` valida y calcula (dominio, L18–41) y en el mismo método imprime "Guardando" y "Correo enviado" (infraestructura, L43–49). |
+| Varios motivos para cambiar | Sí | Cuatro: reglas de validación, política de precio, persistencia y notificación (ver `02_MAPA_RESPONSABILIDADES.md`). |
+| Método principal con demasiadas decisiones | Sí | Cinco condicionales (L18, L22, L27, L33, L39), dos efectos y un cambio de estado en un único método de 40 líneas. |
+| Dependencias futuras difíciles de aislar | Sí | Persistencia y correo están escritos como `System.out.println` dentro del método; no hay punto donde sustituirlos por una BD o SMTP sin editar `procesar()`. |
 
-- **Long Parameter List:** el constructor de `Reserva` recibe 5 parámetros, 3 de ellos `String` intercambiables (id, correo, tipo): un error de orden compila sin aviso.
+#### 8.2 Feature Envy
 
-### G · Condicionales
+`ServicioReservas` llama a `r.getCorreo()` (L22–23), `r.getInicio()` y `r.getFin()` (L27–29) y `r.getTipo()` (L39) para decidir reglas. No todo debe moverse a `Reserva`:
 
-| Condicional | Línea | Riesgo de mantenimiento |
+| Conocimiento | ¿De quién es realmente? | Motivo |
 |---|---|---|
-| `r == null` | L18 | Oculta errores de programación detrás de un 0. |
-| correo null o sin "@" | L22–23 | Regla débil; tentación de "mejorarla" como si fuera refactorización. |
-| periodo null o fin no posterior | L27–29 | Tres condiciones en una; la regla es del dato, no del servicio. |
-| `horasAnticipacion < 2` | L33 | Número mágico y dato no derivado de `inicio`. |
-| `"VIP".equals(tipo)` | L39 | Variante con más probabilidad de crecer (más tipos o descuentos). |
+| fin posterior a inicio | De la reserva (o de un `PeriodoReserva`) | Es una invariante del dato: una reserva con periodo inválido no debería poder existir. |
+| Correo con formato válido | De un concepto `Correo` | La regla es igual para cualquier objeto que tenga correo, no solo `Reserva`. |
+| Descuento VIP 15 % | De una política de precios | Cambia por decisión comercial, no por la naturaleza de la reserva. |
+| Anticipación mínima de 2 h | De una política de reservas | Es una regla de negocio configurable, externa al dato. |
 
-### H · Testabilidad
+#### 8.3 Shotgun Surgery potencial
 
-| Dependencia | Dónde | Por qué dificulta probar |
+Hoy cada regla aparece una sola vez, así que el riesgo es **potencial**. Si mañana otro servicio (cancelaciones, recordatorios) recibe el correo como `String` y las fechas como dos `LocalDateTime` sueltos, tendrá que repetir `contains("@")` y `isAfter(...)`. Un cambio en la regla de correo obligaría entonces a editar cada copia.
+
+### Fase F · Diagnóstico de datos
+
+#### 9.1 Primitive Obsession
+
+| Dato actual | Concepto posible | Regla que podría justificarlo | ¿Justificado hoy? |
+|---|---|---|---|
+| `String correo` | `Correo` | Formato, normalización, no vacío. | Sí: hoy `"@"` pasa como válido (EX-03) y la regla vive en el servicio. |
+| `String tipo` | `TipoReserva` (enum) | Valores permitidos. | Sí: acepta `"vip"`, `null` o cualquier texto y los cobra como NORMAL (EX-01, EX-02). |
+| `LocalDateTime inicio` + `fin` | `PeriodoReserva` | fin > inicio. | Sí: la invariante existe y hoy se valida fuera del dato (L27–31). |
+| `double total` | `Dinero` | No negativo, moneda, redondeo. | Todavía no: solo existen dos valores (40.0 y 34.0), exactos en `double`, y ninguna operación suma importes. Se revisará si aparecen sumas o monedas. |
+
+#### 9.2 Data Clumps
+
+`inicio` y `fin` se declaran juntos (`Reserva.java` L9–10), se reciben juntos en el constructor y se validan juntos (L27–31) con una única regla. Es la señal de Data Clumps que justifica `PeriodoReserva`.
+
+#### 9.3 Long Parameter List
+
+`new Reserva(id, correo, inicio, fin, tipo)` recibe cinco parámetros. Tres son `String` intercambiables (id, correo, tipo) y dos son `LocalDateTime` intercambiables (inicio, fin). Un error de orden compila sin aviso: `new Reserva("R-1", "VIP", inicio, fin, "ana@uees.edu.ec")` se acepta y termina rechazado por correo inválido sin explicar por qué. Agrupar inicio y fin en un periodo reduciría la lista a cuatro parámetros de tipos distintos.
+
+Además, `horasAnticipacion` llega como parámetro aparte de `procesar()` y no se deriva de `inicio`. Puede contradecir la fecha real: EX-06 confirma una reserva de 2020.
+
+### Fase G · Diagnóstico de condicionales
+
+| Condición | Regla expresada | Riesgo de mantenimiento |
 |---|---|---|
-| Persistencia simulada | L43–45 | `println`: solo se verifica capturando la consola. |
-| Notificación simulada | L47–49 | Igual; no se puede sustituir por un doble. |
-| Reloj del sistema | `Main.java` L12–13 | Resultados dependientes de la fecha de ejecución. |
-| Descuento acoplado a validaciones | L37–41 | Probar solo el cálculo exige construir una reserva que pase las cuatro guardas. |
+| `r == null` (L18) | No procesar ausencia de reserva | Oculta un error de programación detrás de un 0 (EX-07); el llamador no se entera. |
+| correo null / sin @ (L22–23) | Correo inválido | Regla débil; la tentación de "mejorarla" es un cambio funcional disfrazado de refactorización. |
+| fin <= inicio (L27–29) | Periodo inválido | Tres condiciones en una; la regla pertenece al dato y se repetirá en cada flujo que use fechas. |
+| horas < 2 (L33) | Anticipación insuficiente | Número mágico `2`; el dato no se deriva de `inicio` (EX-06). |
+| tipo == VIP (L39) | Aplicar descuento | Distingue mayúsculas (EX-01); cada nuevo tipo o descuento añade otro `if` al mismo método. |
 
-No se usan mocks en este laboratorio; solo se identifican las dependencias.
+Las cuatro guardas de validación devuelven el mismo `0`, así que el llamador no sabe **qué** falló.
+
+#### 10.1 ¿Merece refactorización cada condicional?
+
+| Pregunta | Respuesta con evidencia |
+|---|---|
+| ¿La condición expresa una regla de negocio con nombre propio? | Sí: "correo válido", "periodo válido", "anticipación mínima" y "descuento VIP" son reglas con nombre, pero en el código son expresiones anónimas. |
+| ¿La condición se repite? | Hoy no; el riesgo es que se repita en futuros servicios (Shotgun Surgery potencial). |
+| ¿Oculta el flujo principal? | Sí: las primeras 18 líneas del método son guardas; el cálculo y los efectos quedan al final. |
+| ¿Mezcla validación con cálculo y efectos? | Sí: validación (L18–35), cálculo (L37–41) y efectos (L43–51) están en el mismo método. |
+| ¿La variante probablemente crecerá? | Sí para `"VIP".equals(...)`: es la condición que más probablemente crezca con nuevos tipos o descuentos. |
+
+### Fase H · Evaluar testabilidad
+
+| Zona | Qué sería deseable probar | Qué lo dificulta hoy |
+|---|---|---|
+| Descuento VIP | Retorno calculado (34.0) | Mezclado con validaciones y efectos: hay que construir una reserva que pase las cuatro guardas (L18–35) e imprime en consola. |
+| Correo | Que se solicite notificación | Solo existe `println` (L47–49); no hay objeto que verificar. |
+| Persistencia | Que se guarde una reserva | Solo existe `println` (L43–45). |
+| Periodo | Regla fin > inicio | La regla vive dentro del servicio (L27–31), no se puede probar de forma aislada. |
+| Punto de entrada | Resultado reproducible | `Main` usa `LocalDateTime.now()` (`Main.java` L12–13); el arnés de línea base lo evita con una fecha fija. |
+
+No se implementan mocks todavía: solo se identifican las dependencias y efectos que dificultan probar.
 
 > **Bug vs. smell:** "vip" en minúsculas (EX-01) y el correo "@" (EX-03) son *comportamientos dudosos* (posibles bugs) que se documentan sin corregir. El smell es *Primitive Obsession*, que es lo que los permite.
 
