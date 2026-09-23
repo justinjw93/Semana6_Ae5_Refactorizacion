@@ -45,19 +45,13 @@ public class ServicioReservas {
     private boolean esProcesable(Reserva r, int horasAnticipacion) {
         return r != null
                 && esCorreoValido(r)
-                && esPeriodoValido(r)
+                && r.getPeriodo().esValido()
                 && tieneAnticipacionSuficiente(horasAnticipacion);
     }
 
     private boolean esCorreoValido(Reserva r) {
         return r.getCorreo() != null
                 && r.getCorreo().contains("@");
-    }
-
-    private boolean esPeriodoValido(Reserva r) {
-        return r.getInicio() != null
-                && r.getFin() != null
-                && r.getFin().isAfter(r.getInicio());
     }
 
     private boolean tieneAnticipacionSuficiente(int horasAnticipacion) {

@@ -1,0 +1,55 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< edu.uees:semana6-lab-diagnostico >------------------
+[INFO] Building semana6-lab-diagnostico 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ semana6-lab-diagnostico ---
+[INFO] Deleting C:\Users\Dell\StudioProjects\Semana6_Ae5_Refactorizacion\target
+[INFO] 
+[INFO] --- resources:3.4.0:resources (default-resources) @ semana6-lab-diagnostico ---
+[INFO] skip non existing resourceDirectory C:\Users\Dell\StudioProjects\Semana6_Ae5_Refactorizacion\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ semana6-lab-diagnostico ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 8 source files with javac [debug target 21] to target\classes
+[WARNING] location of system modules is not set in conjunction with -source 21
+  not setting the location of system modules may lead to class files that cannot run on JDK 21
+    --release 21 is recommended instead of -source 21 -target 21 because it sets the location of system modules automatically
+[INFO] 
+[INFO] --- resources:3.4.0:testResources (default-testResources) @ semana6-lab-diagnostico ---
+[INFO] skip non existing resourceDirectory C:\Users\Dell\StudioProjects\Semana6_Ae5_Refactorizacion\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ semana6-lab-diagnostico ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 4 source files with javac [debug target 21] to target\test-classes
+[WARNING] location of system modules is not set in conjunction with -source 21
+  not setting the location of system modules may lead to class files that cannot run on JDK 21
+    --release 21 is recommended instead of -source 21 -target 21 because it sets the location of system modules automatically
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ semana6-lab-diagnostico ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running edu.uees.refactor.domain.PeriodoReservaTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.046 s -- in edu.uees.refactor.domain.PeriodoReservaTest
+[INFO] Running edu.uees.refactor.domain.ReservaTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in edu.uees.refactor.domain.ReservaTest
+[INFO] Running edu.uees.refactor.infraestructura.InfraestructuraReservasTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in edu.uees.refactor.infraestructura.InfraestructuraReservasTest
+[INFO] Running edu.uees.refactor.service.ServicioReservasTest
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in edu.uees.refactor.service.ServicioReservasTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 26, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.712 s
+[INFO] Finished at: 2026-09-22T22:19:36-05:00
+[INFO] ------------------------------------------------------------------------

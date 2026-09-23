@@ -6,8 +6,7 @@ public class Reserva {
 
     private final String id;
     private final String correo;
-    private final LocalDateTime inicio;
-    private final LocalDateTime fin;
+    private final PeriodoReserva periodo;
     private final String tipo;
     private EstadoReserva estado = EstadoReserva.PENDIENTE;
 
@@ -18,10 +17,18 @@ public class Reserva {
             LocalDateTime fin,
             String tipo) {
 
+        this(id, correo, new PeriodoReserva(inicio, fin), tipo);
+    }
+
+    public Reserva(
+            String id,
+            String correo,
+            PeriodoReserva periodo,
+            String tipo) {
+
         this.id = id;
         this.correo = correo;
-        this.inicio = inicio;
-        this.fin = fin;
+        this.periodo = periodo;
         this.tipo = tipo;
     }
 
@@ -37,12 +44,16 @@ public class Reserva {
         return correo;
     }
 
+    public PeriodoReserva getPeriodo() {
+        return periodo;
+    }
+
     public LocalDateTime getInicio() {
-        return inicio;
+        return periodo.inicio();
     }
 
     public LocalDateTime getFin() {
-        return fin;
+        return periodo.fin();
     }
 
     public String getTipo() {

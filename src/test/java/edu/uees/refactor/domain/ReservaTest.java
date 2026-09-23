@@ -35,4 +35,16 @@ class ReservaTest {
 
         assertEquals(EstadoReserva.CONFIRMADA, r.getEstado());
     }
+
+    @Test
+    @DisplayName("El constructor con PeriodoReserva expone el mismo periodo")
+    void constructorConPeriodo() {
+        PeriodoReserva periodo = new PeriodoReserva(INICIO, INICIO.plusHours(1));
+
+        Reserva r = new Reserva("R-002", "ana@uees.edu.ec", periodo, "NORMAL");
+
+        assertEquals(periodo, r.getPeriodo());
+        assertEquals(INICIO, r.getInicio());
+        assertEquals(INICIO.plusHours(1), r.getFin());
+    }
 }
