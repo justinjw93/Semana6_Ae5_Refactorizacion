@@ -1,6 +1,8 @@
 package edu.uees.refactor.service;
 
 import edu.uees.refactor.domain.Reserva;
+import edu.uees.refactor.infraestructura.NotificadorReservas;
+import edu.uees.refactor.infraestructura.RepositorioReservas;
 
 public class ServicioReservas {
 
@@ -9,6 +11,19 @@ public class ServicioReservas {
     static final int HORAS_MINIMAS_ANTICIPACION = 2;
 
     private static final double SIN_PROCESAR = 0;
+
+    private final RepositorioReservas repositorio;
+    private final NotificadorReservas notificador;
+
+    public ServicioReservas() {
+        this(new RepositorioReservas(), new NotificadorReservas());
+    }
+
+    public ServicioReservas(RepositorioReservas repositorio,
+                            NotificadorReservas notificador) {
+        this.repositorio = repositorio;
+        this.notificador = notificador;
+    }
 
     public double procesar(
             Reserva r,
@@ -20,14 +35,8 @@ public class ServicioReservas {
 
         double total = calcularTotal(r);
 
-        System.out.println(
-                "Guardando reserva " + r.getId()
-        );
-
-        System.out.println(
-                "Correo enviado a " + r.getCorreo()
-        );
-
+        repositorio.guardar(r);
+        notificador.notificarConfirmacion(r);
         r.confirmar();
 
         return total;
