@@ -1,26 +1,28 @@
 package edu.uees.refactor.service;
 
 import edu.uees.refactor.domain.Reserva;
+import edu.uees.refactor.domain.TipoReserva;
 import edu.uees.refactor.infraestructura.NotificadorReservas;
 import edu.uees.refactor.infraestructura.RepositorioReservas;
 
 public class ServicioReservas {
 
-    static final double TARIFA_BASE = 40;
-    static final double FACTOR_VIP = 0.85;
     static final int HORAS_MINIMAS_ANTICIPACION = 2;
 
     private static final double SIN_PROCESAR = 0;
 
+    private final CalculadoraTarifa calculadora;
     private final RepositorioReservas repositorio;
     private final NotificadorReservas notificador;
 
     public ServicioReservas() {
-        this(new RepositorioReservas(), new NotificadorReservas());
+        this(new CalculadoraTarifa(), new RepositorioReservas(), new NotificadorReservas());
     }
 
-    public ServicioReservas(RepositorioReservas repositorio,
+    public ServicioReservas(CalculadoraTarifa calculadora,
+                            RepositorioReservas repositorio,
                             NotificadorReservas notificador) {
+        this.calculadora = calculadora;
         this.repositorio = repositorio;
         this.notificador = notificador;
     }
@@ -33,7 +35,7 @@ public class ServicioReservas {
             return SIN_PROCESAR;
         }
 
-        double total = calcularTotal(r);
+        double total = calculadora.calcular(TipoReserva.desde(r.getTipo()));
 
         repositorio.guardar(r);
         notificador.notificarConfirmacion(r);
@@ -56,12 +58,5 @@ public class ServicioReservas {
 
     private boolean tieneAnticipacionSuficiente(int horasAnticipacion) {
         return horasAnticipacion >= HORAS_MINIMAS_ANTICIPACION;
-    }
-
-    private double calcularTotal(Reserva r) {
-        if ("VIP".equals(r.getTipo())) {
-            return TARIFA_BASE * FACTOR_VIP;
-        }
-        return TARIFA_BASE;
     }
 }
