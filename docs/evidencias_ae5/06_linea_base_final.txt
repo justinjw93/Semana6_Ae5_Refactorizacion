@@ -1,0 +1,68 @@
+=== Escenarios de línea base ===
+
+[LB-01] NORMAL válida | tipo=NORMAL | correo=ana@uees.edu.ec | horas=5
+Guardando reserva R-001
+Correo enviado a ana@uees.edu.ec
+  -> Estado: CONFIRMADA
+  -> Retorno: 40.0
+
+[LB-02] VIP válida | tipo=VIP | correo=ana@uees.edu.ec | horas=5
+Guardando reserva R-002
+Correo enviado a ana@uees.edu.ec
+  -> Estado: CONFIRMADA
+  -> Retorno: 34.0
+
+[LB-03] Correo inválido | tipo=NORMAL | correo=incorrecto | horas=5
+  -> Estado: PENDIENTE
+  -> Retorno: 0.0
+
+[LB-04] Periodo inválido (fin = inicio) | tipo=NORMAL | correo=ana@uees.edu.ec | horas=5
+  -> Estado: PENDIENTE
+  -> Retorno: 0.0
+
+[LB-05] Límite válido (2 h) | tipo=NORMAL | correo=ana@uees.edu.ec | horas=2
+Guardando reserva R-005
+Correo enviado a ana@uees.edu.ec
+  -> Estado: CONFIRMADA
+  -> Retorno: 40.0
+
+[LB-06] Límite inválido (1 h) | tipo=NORMAL | correo=ana@uees.edu.ec | horas=1
+  -> Estado: PENDIENTE
+  -> Retorno: 0.0
+
+=== Escenarios extra (reglas implícitas) ===
+
+[EX-01] Tipo "vip" en minúsculas | tipo=vip | correo=ana@uees.edu.ec | horas=5
+Guardando reserva R-101
+Correo enviado a ana@uees.edu.ec
+  -> Estado: CONFIRMADA
+  -> Retorno: 40.0
+
+[EX-02] Tipo null | tipo=null | correo=ana@uees.edu.ec | horas=5
+Guardando reserva R-102
+Correo enviado a ana@uees.edu.ec
+  -> Estado: CONFIRMADA
+  -> Retorno: 40.0
+
+[EX-03] Correo "@" | tipo=NORMAL | correo=@ | horas=5
+Guardando reserva R-103
+Correo enviado a @
+  -> Estado: CONFIRMADA
+  -> Retorno: 40.0
+
+[EX-04] Fin antes de inicio | tipo=NORMAL | correo=ana@uees.edu.ec | horas=5
+  -> Estado: PENDIENTE
+  -> Retorno: 0.0
+
+[EX-05] Correo null | tipo=NORMAL | correo=null | horas=5
+  -> Estado: PENDIENTE
+  -> Retorno: 0.0
+
+[EX-06] Inicio en el pasado con 5 h declaradas | tipo=NORMAL | correo=ana@uees.edu.ec | horas=5
+Guardando reserva R-106
+Correo enviado a ana@uees.edu.ec
+  -> Estado: CONFIRMADA
+  -> Retorno: 40.0
+
+[EX-07] procesar(null, 5)
+  -> Retorno: 0.0

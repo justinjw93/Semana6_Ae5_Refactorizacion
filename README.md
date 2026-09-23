@@ -1,55 +1,34 @@
 # UEES | Diseño de Software | UCOM0310
-## Semana 6 | Laboratorio evaluado 1
-### Diagnóstico técnico de código heredado
+## Semana 6 | Ae5 — Refactorización respaldada por pruebas unitarias
 
-Este es el **proyecto base** para desarrollar la actividad:
+**Estudiante:** Justin Arreaga
+**Caso:** sistema de reservas de tutorías (código heredado del Laboratorio 1).
 
-**Actividad 1 | Diagnóstico de código heredado**
-
-La actividad consiste en **comprender, observar, evidenciar y diagnosticar** el código antes de realizar cualquier refactorización estructural.
-
-> **Regla del laboratorio:** durante el Laboratorio 1 NO debes refactorizar todavía.
+El proyecto parte del diagnóstico del Laboratorio 1 (`docs/01…07`). En esta actividad se construyó
+una red de pruebas JUnit 5 y, protegidos por ella, se aplicaron cuatro refactorizaciones con commits
+incrementales. El comportamiento observable no cambió.
 
 ---
 
 ## Requisitos
 
 - Java 21
-- Maven
+- Maven 3.9+
 - Git
-- IDE de preferencia: STS, IntelliJ IDEA, Eclipse o VS Code
 
-Verifica:
-
-```bash
-java -version
-mvn -version
-git --version
-```
-
----
-
-## Compilar
+## Ejecutar las pruebas
 
 ```bash
-mvn clean compile
+mvn clean test
 ```
 
-Debes obtener:
+Resultado esperado: `Tests run: 30, Failures: 0, Errors: 0` y `BUILD SUCCESS`.
 
-```text
-BUILD SUCCESS
-```
-
----
-
-## Ejecutar
+## Ejecutar el programa
 
 ```bash
-mvn exec:java -Dexec.mainClass="edu.uees.refactor.app.Main"
+mvn compile exec:java -Dexec.mainClass="edu.uees.refactor.app.Main"
 ```
-
-La salida inicial esperada para el caso VIP es:
 
 ```text
 Guardando reserva R-001
@@ -58,79 +37,38 @@ Estado: CONFIRMADA
 Total: 34.0
 ```
 
-Si obtienes una salida diferente, registra la evidencia real.
-
----
-
-## Estructura
-
-```text
-UEES_UCOM0310_Semana6_Lab1_Proyecto_BASE/
-├── pom.xml
-├── README.md
-├── src/main/java/edu/uees/refactor/
-│   ├── app/Main.java
-│   ├── domain/EstadoReserva.java
-│   ├── domain/Reserva.java
-│   └── service/ServicioReservas.java
-└── docs/
-    ├── 01_LINEA_BASE.md
-    ├── 02_MAPA_RESPONSABILIDADES.md
-    ├── 03_MATRIZ_DIAGNOSTICO.md
-    ├── 04_MATRIZ_RIESGO.md
-    ├── 05_PRUEBAS_PROPUESTAS.md
-    ├── 06_PLAN_REFACTORIZACION.md
-    └── 07_REFLEXION_TECNICA.md
-```
-
----
-
-## Lo que debes hacer
-
-1. Validar el entorno.
-2. Compilar el proyecto.
-3. Ejecutar el código sin modificarlo.
-4. Registrar la salida.
-5. Construir seis escenarios de línea base.
-6. Identificar responsabilidades actuales.
-7. Diagnosticar problemas de clases.
-8. Diagnosticar problemas de datos.
-9. Diagnosticar condicionales.
-10. Evaluar testabilidad.
-11. Completar la matriz de diagnóstico.
-12. Completar la matriz de riesgo.
-13. Proponer pruebas antes de modificar.
-14. Priorizar el plan de refactorización.
-15. Registrar el estado inicial en Git.
-
----
-
-## No debes hacer todavía
-
-- Extract Class.
-- Move Method.
-- Introducir Value Objects.
-- Simplificar condicionales.
-- Aplicar Strategy.
-- Cambiar reglas funcionales.
-- Implementar mocks.
-
-Estas acciones se realizarán posteriormente, una vez construida la red de seguridad.
-
----
-
-## Git
-
-Al finalizar el diagnóstico:
+Línea base completa (seis escenarios y los escenarios extra):
 
 ```bash
-git init
-git add .
-git commit -m "chore: registrar proyecto heredado y linea base"
+mvn compile exec:java -Dexec.mainClass="edu.uees.refactor.app.LineaBaseManual"
 ```
 
-La meta del Laboratorio 1 no es terminar con código más limpio.
+---
 
-La meta es terminar con evidencia suficiente para responder:
+## Estructura final
 
-> **¿Qué hace el código, dónde están sus riesgos y qué pruebas necesito antes de cambiarlo?**
+```text
+src/main/java/edu/uees/refactor/
+├── app/            Main, LineaBaseManual
+├── domain/         Reserva, EstadoReserva, PeriodoReserva (record), TipoReserva (enum)
+├── service/        ServicioReservas (orquesta), CalculadoraTarifa (precio)
+└── infraestructura/ RepositorioReservas, NotificadorReservas (simulados con consola)
+
+src/test/java/edu/uees/refactor/   30 pruebas JUnit 5 (patrón AAA)
+docs/
+├── 01…07  Diagnóstico del Laboratorio 1
+├── 08_REPORTE_AE5.md   Reporte técnico de la Ae5
+└── evidencias_ae5/     Salidas reales de mvn test, ejecución y regresiones
+```
+
+## Refactorizaciones aplicadas
+
+| # | Técnica | Commit |
+|---|---|---|
+| 0 | Red de seguridad: 19 pruebas de caracterización | `test: caracterizar comportamiento actual de ServicioReservas con JUnit 5` |
+| 1 | Decompose Conditional + constantes con nombre | `refactor: descomponer condicionales y nombrar reglas de ServicioReservas` |
+| 2 | Extract Class (persistencia y notificación) | `refactor: extraer persistencia y notificacion de ServicioReservas` |
+| 3 | Value Object `PeriodoReserva` (Data Clumps + Move Method) | `refactor: introducir PeriodoReserva para agrupar inicio y fin` |
+| 4 | Extract Class `CalculadoraTarifa` + enum `TipoReserva` | `refactor: extraer politica de precios a CalculadoraTarifa y TipoReserva` |
+
+Detalle, comparación antes/después y conclusiones en [`docs/08_REPORTE_AE5.md`](docs/08_REPORTE_AE5.md).

@@ -1,0 +1,21 @@
+== M1 limite de anticipacion >= -> >
+[ERROR]   ServicioReservasTest.dosHorasSiPermiteProcesar
+== M2 descuento VIP 0.85 -> 0.80
+[ERROR]   CalculadoraTarifaTest.vipCobraConDescuento
+[ERROR]   ServicioReservasTest.vipConservaResultadoActual
+== M3 eliminar r.confirmar()
+[ERROR]   ServicioReservasTest.correoSoloArrobaSeAceptaHoy
+[ERROR]   ServicioReservasTest.dosHorasSiPermiteProcesar
+[ERROR]   ServicioReservasTest.inicioEnPasadoConHorasDeclaradasSeConfirma
+[ERROR]   ServicioReservasTest.reservaValidaSeConfirma
+[ERROR]   ServicioReservasTest.tipoEnMinusculasNoAplicaDescuento
+[ERROR]   ServicioReservasTest.tipoNuloSeCobraComoNormal
+[ERROR]   ServicioReservasTest.vipConservaResultadoActual
+== M4 aceptar vip en minusculas
+[ERROR]   ServicioReservasTest.tipoEnMinusculasNoAplicaDescuento
+[ERROR]   TipoReservaTest.otrosValoresSonNormal
+== M5 aceptar fin == inicio
+[ERROR]   PeriodoReservaTest.finIgualNoEsValido
+[ERROR]   ServicioReservasTest.periodoInvalidoNoProcesa:176->assertRechazada
+== M6 no validar @
+[ERROR]   ServicioReservasTest.correoInvalidoNoProcesa:145->assertRechazada
